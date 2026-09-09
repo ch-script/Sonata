@@ -7,9 +7,9 @@ pub struct BackupManager {
 
 impl BackupManager {
     pub fn new() -> Self {
-        // ~/.config/ch/backup
+        // ~/.config/paw/backup
         let mut path = dirs::config_dir().unwrap_or_else(|| PathBuf::from("~/.config"));
-        path.push("ch");
+        path.push("paw");
         path.push("backup");
         Self { backup_dir: path }
     }
@@ -17,7 +17,7 @@ impl BackupManager {
     pub fn backup(&self, category: &str, file_path_str: &str) -> Result<PathBuf, String> {
         let original_path = Path::new(file_path_str);
         if !original_path.exists() {
-            return Err(format!("El archivo {} no existe.", file_path_str));
+            return Err(format!("File {} does not exist.", file_path_str));
         }
 
         let mut category_dir = self.backup_dir.clone();

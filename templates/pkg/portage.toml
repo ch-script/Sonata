@@ -1,0 +1,45 @@
+# System Packages
+# -----------------------------------------------------------------------------
+[pkg]
+update = "sudo emerge --sync && sudo emerge -avuDN @world"
+install = "sudo emerge {1}"
+remove = "sudo emerge --unmerge {1}"
+search = "emerge --search {1}"
+info = "emerge --pretend --verbose {1}"
+list_installed = "qlist -Iv"
+
+# Cleanup / Cache Management (WARNING THIS IS NOT TESTED AND SHOULD NOT BE USED FOR NOW)
+# -----------------------------------------------------------------------------
+[clean]
+clear_cache = "sudo eclean-pkg"
+clear_cache_all = "sudo eclean-dist --deep"
+remove_orphans = "sudo emerge --depclean"
+cache_size = "du -sh /var/cache/binpkgs /usr/portage/distfiles 2>/dev/null"
+
+# Portage Specifics:
+
+# USE Flags & Configuration
+# -----------------------------------------------------------------------------
+[useflags]
+show = "equery uses {1}"
+edit_global = "sudo $EDITOR /etc/portage/make.conf"
+edit_package = "sudo $EDITOR /etc/portage/package.use"
+
+# World / System Set Management
+# -----------------------------------------------------------------------------
+[world]
+list = "cat /var/lib/portage/world"
+depclean_dry = "sudo emerge --pretend --depclean"
+rebuild_reverse_deps = "sudo emerge @preserved-rebuild"
+
+# News & Sync
+# -----------------------------------------------------------------------------
+[news]
+list = "eselect news list"
+read = "eselect news read {1}"
+
+# Profile Management
+# -----------------------------------------------------------------------------
+[profile]
+list = "eselect profile list"
+set = "sudo eselect profile set {1}"

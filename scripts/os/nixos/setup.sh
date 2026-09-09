@@ -1,15 +1,15 @@
 CONFIG_FILE="/etc/nixos/configuration.nix"
 PACKAGES_FILE="/etc/nixos/packages.nix"
 
-echo "[ch] Setting up declarative environment in $CONFIG_FILE"
+echo "[paw] Setting up declarative environment in $CONFIG_FILE"
 
 if grep -q "\./packages.nix" "$CONFIG_FILE"; then
-    echo "[ch] ./packages.nix is already in your imports. All good!!"
+    echo "[paw] ./packages.nix is already in your imports. All good!!"
 else
-    echo "[ch] Creating backup of $CONFIG_FILE"
-    ch --backup pkgs "$CONFIG_FILE"
+    echo "[paw] Creating backup of $CONFIG_FILE"
+    paw --backup pkgs "$CONFIG_FILE"
     sudo sed -i '/imports =/,/]/ s/^\(\s*\)]/\1  .\/packages.nix\n\1]/' "$CONFIG_FILE"
-    echo "[ch] ./packages.nix injected successfully."
+    echo "[paw] ./packages.nix injected successfully."
 fi
 
 if [ ! -f "$PACKAGES_FILE" ]; then
@@ -23,5 +23,5 @@ if [ ! -f "$PACKAGES_FILE" ]; then
   ];
 }
 EOF
-    echo "[ch] $PACKAGES_FILE created successfully."
+    echo "[paw] $PACKAGES_FILE created successfully."
 fi

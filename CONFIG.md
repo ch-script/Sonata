@@ -1,12 +1,12 @@
-# Config Syntax Guide (`ch` TOML)
+# Config Syntax Guide (`paw` TOML)
 
-So `ch` is basically driven by a bunch of TOML files that get chunked together, once they're created, you can personalize them as you want. So, here is how to do it. Remember that the conf files are in this route: ~/.config/ch/config.toml
+So `paw` is basically driven by a bunch of TOML files that get chunked together, once they're created, you can personalize them as you want. So, here is how to do it. Remember that the conf files are in this route: ~/.config/ch/config.toml
 
 This doc breaks down the three types of nodes (modes) you can throw into your `.toml` files.
 
 ## 1. Base Categories (Root Nodes)
 
-Every TOML file in `ch` has to start by declaring which module/category it belongs to, using square brackets `[ ]`. This tells the assembler where to inject the stuff you're defining.
+Every TOML file in `paw` has to start by declaring which module/category it belongs to, using square brackets `[ ]`. This tells the assembler where to inject the stuff you're defining.
 
 ```toml
 # Examples of valid headers
@@ -19,11 +19,11 @@ That's it, that's the whole rule. No header, no worky.
 
 ## 2. Simple Commands
 
-This is the most basic way to talk to `ch`. It's just a key-value pair where the value is a string (the actual command that gets run).
+This is the most basic way to talk to `paw`. It's just a key-value pair where the value is a string (the actual command that gets run).
 
 ### Dynamic Arguments
 
-You can use `{1}`, `{2}`, `{3}`, etc inside your command. When `ch` reads one of these, it'll pause and ask the user to type in whatever's needed before actually running the thing. Pretty handy so you don't have to hardcode a package name for every single command.
+You can use `{1}`, `{2}`, `{3}`, etc inside your command. When `paw` reads one of these, it'll pause and ask the user to type in whatever's needed before actually running the thing. Pretty handy so you don't have to hardcode a package name for every single command.
 
 ```toml
 [pkg]
@@ -49,12 +49,12 @@ Anything you declare under a submenu belongs exclusively to that node. In the in
 
 # Submenu 1: Flatpak
 [extrapkgs.flatpak]
-install = "ch pkg install flatpak"
+install = "paw pkg install flatpak"
 setup = "flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo"
 
 # Submenu 2: AppImage
 [extrapkgs.appimage]
-install = "ch pkg install appimagelauncher"
+install = "paw pkg install appimagelauncher"
 
 # you can even nest deeper if you're feeling spicy
 [extrapkgs.flatpak.advanced]
@@ -63,7 +63,7 @@ repair = "flatpak repair"
 
 ## 4. Advanced Commands (Guardrails & Confirmations)
 
-For destructive or scary commands, `ch` supports inline tables so you can slap some safety layers on before the command actually fires. Because nobody wants to `rm -rf` the wrong thing at 2am haha right... right?
+For destructive or scary commands, `paw` supports inline tables so you can slap some safety layers on before the command actually fires. Because nobody wants to `rm -rf` the wrong thing at 2am haha right... right?
 
 Instead of passing a plain string, you pass an object `{ }` with these fields:
 

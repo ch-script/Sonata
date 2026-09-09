@@ -4,9 +4,11 @@ pub fn setup_ch_theme() {
     let mut theme = RenderConfig::default();
 
     // prompts and prefixes
-    theme.prompt = StyleSheet::new().with_fg(Color::LightCyan).with_attr(Attributes::BOLD);
-    theme.prompt_prefix = Styled::new("ch prompt").with_fg(Color::LightMagenta);
-    theme.answered_prompt_prefix = Styled::new("ch success").with_fg(Color::LightGreen);
+    theme.prompt = StyleSheet::new()
+        .with_fg(Color::LightCyan)
+        .with_attr(Attributes::BOLD);
+    theme.prompt_prefix = Styled::new("paw prompt").with_fg(Color::LightMagenta);
+    theme.answered_prompt_prefix = Styled::new("paw success").with_fg(Color::LightGreen);
     theme.help_message = StyleSheet::new().with_fg(Color::DarkGrey);
 
     // options selection

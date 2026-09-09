@@ -1,0 +1,19 @@
+# Services and Daemons (we have yet to have something to identify the logger for the system, that should be coming soon)
+# -----------------------------------------------------------------------------
+[service]
+start = "sudo rc-service {1} start"
+stop = "sudo rc-service {1} stop"
+restart = "sudo rc-service {1} restart"
+status = "rc-service {1} status"
+enable = "sudo rc-update add {1} default"
+disable = "sudo rc-update del {1} default"
+list_all = "rc-status --all"
+
+# Logs and diagnostics
+# -----------------------------------------------------------------------------
+[log]
+boot = "cat /var/log/rc.log"
+service = "cat /var/log/{1}/current"
+follow = "tail -f /var/log/messages"
+errors = "grep -i 'err\\|crit\\|fail' /var/log/messages"
+kernel = "dmesg"
