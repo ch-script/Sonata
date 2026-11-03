@@ -1,4 +1,4 @@
-use crate::config::model::Config;
+use core_abs::config::model::Config;
 //use crossterm::event::{Event, KeyCode, KeyModifiers};
 use crossterm::{
     cursor::MoveTo,
@@ -274,7 +274,7 @@ fn navigate_menu(
             action_keys.sort();
             action_keys.push("Cancel".to_string());
 
-            if let Ok(act) = Select::new("Manage variables for which action?", action_keys).prompt()
+            if let Ok(act) = Select::<String>::new("Manage variables for which action?", action_keys).prompt()
             {
                 if act != "Cancel" {
                     let _ = manage_variables_tui(&path[0], &act); // path[0] is the actual module .-.

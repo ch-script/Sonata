@@ -1,7 +1,7 @@
 mod cli;
-mod config;
-mod sys;
-mod ui;
+//mod config;
+//mod sys;
+pub mod ui;
 
 fn main() {
     ui::theme::setup_ch_theme();

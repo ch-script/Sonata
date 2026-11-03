@@ -1,8 +1,9 @@
-use crate::config::model::Config;
-use crate::config::templates::{
+use core_abs::config::model::Config;
+use core_abs::config::templates::{
     backup, clean_backups, clean_config, init_config, init_customs, load_profile, update_config,
 };
-use crate::sys::executor::execute;
+use core_abs::sys::executor::execute;
+
 use crate::ui::interactive::run_interactive_help;
 use std::env;
 
@@ -91,13 +92,13 @@ fn process_flags(args: &[String]) -> Result<bool, String> {
             // tuf logo
             crate::ui::theme::print_logo(); // ik ik ill use "use" later i js want tuf logo
 
-            let profile = crate::sys::detector::build_system_profile(forced_distro.clone());
+            let profile = core_abs::sys::detector::build_system_profile(forced_distro.clone());
             println!("[paw] Profile detected: {:?}", profile);
             init_config(&profile)?;
             println!("[paw] Conf created! :D all good!");
             return Ok(true);
         } else if arg == "--update" {
-            let profile = crate::sys::detector::build_system_profile(forced_distro.clone());
+            let profile = core_abs::sys::detector::build_system_profile(forced_distro.clone());
             update_config(&profile)?;
             println!("[paw] Upgraded :D");
             return Ok(true);
@@ -131,7 +132,7 @@ fn process_flags(args: &[String]) -> Result<bool, String> {
 
                 let assigned = i + 6 < args.len() && args[i + 6] == "--assign";
 
-                let mut config = crate::config::model::Config::load()?;
+                let mut config = core_abs::config::model::Config::load()?;
 
                 let module_table = config
                     .modules
@@ -180,7 +181,7 @@ fn process_flags(args: &[String]) -> Result<bool, String> {
                 let target_mod = &args[i + 3];
                 let target_act = &args[i + 4];
 
-                let mut config = crate::config::model::Config::load()?;
+                let mut config = core_abs::config::model::Config::load()?;
 
                 if let Some(toml::Value::Table(mod_table)) = config.modules.get_mut(target_mod) {
                     if let Some(toml::Value::Table(vars_table)) = mod_table.get_mut("vars") {

@@ -1,0 +1,15 @@
+[package]
+name = "interface"
+version = "0.2.0"
+edition = "2024"
+default-run = "paw"
+
+[[bin]]
+name = "paw"
+path = "src/main.rs"
+
+[dependencies]
+crossterm = "0.29.0"
+inquire = "0.9.4"
+core-abs = { path = "../core-abs" }
+toml = "1.1.4"

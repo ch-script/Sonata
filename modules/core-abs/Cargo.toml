@@ -1,0 +1,10 @@
+[package]
+name = "core-abs"
+version = "0.2.0"
+edition = "2024"
+
+[dependencies]
+dirs = "6.0.0"
+include_dir = "0.7.4"
+serde = { version = "1.0.229", features = ["derive"] }
+toml = "1.1.4"
