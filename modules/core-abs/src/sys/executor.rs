@@ -8,7 +8,7 @@ pub fn execute(cmd_raw: &str, extra_args: &[String]) -> Result<(), String> {
     } else {
         format!("{} {}", formatted_cmd, unused_args.join(" "))
     };
-    let err = Command::new("fish") // the command is sent to fish, SOOO, its needed to get the system working
+    let err = Command::new("sh")
         .arg("-c")
         .arg(&full_command)
         .exec();
