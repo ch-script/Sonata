@@ -1,0 +1,20 @@
+# Services and Daemon
+# -----------------------------------------------------------------------------
+[service]
+start = "sudo /etc/rc.d/{1} start"
+stop = "sudo /etc/rc.d/{1} stop"
+restart = "sudo /etc/rc.d/{1} restart"
+status = "/etc/rc.d/{1} status"
+enable = "echo '{1}=YES' | sudo tee -a /etc/rc.conf"
+disable = "sudo sed -i.bak '/^{1}=YES/d' /etc/rc.conf"
+list_all = "ls /etc/rc.d"
+
+
+# Logs and diagnostics
+# -----------------------------------------------------------------------------
+[log]
+boot = "cat /var/run/dmesg.boot"
+service = "grep {1} /var/log/messages"
+follow = "tail -f /var/log/messages"
+errors = "grep -i -E 'error|fail' /var/log/messages"
+kernel = "dmesg"

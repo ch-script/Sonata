@@ -1,0 +1,21 @@
+# Services and Daemons (rc)
+# -----------------------------------------------------------------------------
+[service]
+start = "sudo service {1} start"
+stop = "sudo service {1} stop"
+restart = "sudo service {1} restart"
+status = "service {1} status"
+enable = 'sudo sysrc {1}_enable="YES"'
+disable = 'sudo sysrc {1}_enable="NO"'
+list_all = "service -l"
+list_enabled = "service -e"
+
+
+# Logs and diagnostics
+# -----------------------------------------------------------------------------
+[log]
+boot = "cat /var/run/dmesg.boot"
+service = "grep {1} /var/log/messages"
+follow = "tail -f /var/log/messages"
+errors = "grep -i -E 'error|fail' /var/log/messages"
+kernel = "dmesg"

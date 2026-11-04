@@ -1,0 +1,17 @@
+# System Packages (pkg)
+# -----------------------------------------------------------------------------
+[pkg]
+update = "sudo pkg update && sudo pkg upgrade"
+install = "sudo pkg install {1}"
+remove = "sudo pkg autoremove -y && sudo pkg delete {1}"
+search = "pkg search {1}"
+info = "pkg search -f {1}"
+list_installed = "pkg prime-list"
+
+# Cleanup / Cache Management
+# -----------------------------------------------------------------------------
+[clean]
+clear_cache = "sudo pkg clean"
+clear_cache_all = "sudo pkg clean -a"
+remove_orphans = "sudo pkg autoremove"
+cache_size = "du -sh /var/cache/pkg"

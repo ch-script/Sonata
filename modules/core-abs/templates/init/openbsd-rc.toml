@@ -1,0 +1,22 @@
+# Services and Daemons
+# -----------------------------------------------------------------------------
+[service]
+start = "doas rcctl start {1}"
+stop = "doas rcctl stop {1}"
+restart = "doas rcctl restart {1}"
+status = "rcctl check {1}"
+enable = "doas rcctl enable {1}"
+disable = "doas rcctl disable {1}"
+list_all = "rcctl ls all"
+list_enabled = "rcctl ls on"
+list_running = "rcctl ls started"
+
+
+# Logs and diagnostics
+# -----------------------------------------------------------------------------
+[log]
+boot = "cat /var/run/dmesg.boot"
+service = "grep {1} /var/log/messages /var/log/daemon"
+follow = "tail -f /var/log/messages"
+errors = "grep -i -E 'error|fail' /var/log/messages /var/log/daemon"
+kernel = "dmesg"
