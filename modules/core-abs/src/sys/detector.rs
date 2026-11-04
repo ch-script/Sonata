@@ -26,19 +26,26 @@ fn detect_init_system() -> String {
         "runit".to_string()
     } else if command_exists("dinit") {
         "dinit".to_string()
+    } else if command_exists("rcctl") {
+        "openbsd-rc".to_string()
+    } else if command_exists("service") && env::consts::OS.contains("bsd") {
+        "freebsd-rc".to_string()
     } else {
         "unknown".to_string()
     }
 }
 // available support for now
 fn detect_pkg_manager() -> String {
-    if command_exists("pacman") { "pacman".to_string() }
-    else if command_exists("apt-get") { "apt".to_string() }
-    else if command_exists("nix-env") { "nix".to_string() }
-    else if command_exists("emerge") { "portage".to_string() }
-    else if command_exists("xbps-install") { "xbps".to_string() }
-    else if command_exists("dnf") { "dnf".to_string() }
-    else if command_exists("zypper") { "zypper".to_string() }
+    if command_exists("pacman") { "pacman".to_string() } // Arch larp
+    else if command_exists("apt-get") { "apt".to_string() } // Debian based
+    else if command_exists("nix-env") { "nix".to_string() } // NixOS
+    else if command_exists("emerge") { "portage".to_string() } // Gentoo
+    else if command_exists("xbps-install") { "xbps".to_string() } // Void
+    else if command_exists("dnf") { "dnf".to_string() } // Fedora
+    else if command_exists("zypper") { "zypper".to_string() } // OpenSUSE
+    else if command_exists("pkg") { "pkg".to_string() } // FreeBSD / DragonFly
+    else if command_exists("pkg_add") { "pkg_add".to_string() } // OpenBSD
+    else if command_exists("pkgin") { "pkgin".to_string() } // NetBSD
     else { "fallback".to_string() }
 }
 // available support for now
@@ -53,7 +60,7 @@ fn detect_net_manager(os: &str) -> String {
     } else if command_exists("iwctl") {
         "iwd".to_string()
     } else {
-        "base_net".to_string() 
+        "base_net".to_string()
     }
 }
 
@@ -100,7 +107,7 @@ fn detect_de() -> Option<String> { // only DE
 fn detect_wm() -> Option<String> { // only WM
     if env::var("HYPRLAND_INSTANCE_SIGNATURE").is_ok() { return Some("hyprland".to_string()); }
     if env::var("NIRI_SOCKET").is_ok() { return Some("niri".to_string()); }
-    if env::var("I3SOCK").is_ok() { return Some("i3wm".to_string()); } 
+    if env::var("I3SOCK").is_ok() { return Some("i3wm".to_string()); }
     if env::var("BSPWM_SOCKET").is_ok() { return Some("bspwm".to_string()); }
     if let Ok(desktop) = env::var("XDG_CURRENT_DESKTOP") {
         let lower = desktop.to_lowercase();
@@ -110,11 +117,15 @@ fn detect_wm() -> Option<String> { // only WM
     None
 }
 
-fn detect_gpu() -> Option<String> {
+fn detect_gpu() -> Option<String> {else if command_exists("rcctl") {
+        "openbsd-rc".to_string()
+    } else if command_exists("service") && env::consts::OS.contains("bsd") {
+        "freebsd-rc".to_string()
+    }
     if Path::new("/sys/module/nvidia").exists() { return Some("nvidia".to_string()); }
     if Path::new("/sys/module/amdgpu").exists() { return Some("amd".to_string()); }
-    if Path::new("/sys/module/i915").exists() || Path::new("/sys/module/xe").exists() { 
-        return Some("intel".to_string()); 
+    if Path::new("/sys/module/i915").exists() || Path::new("/sys/module/xe").exists() {
+        return Some("intel".to_string());
     }
     None
 }
@@ -172,6 +183,9 @@ pub fn build_system_profile(forced_distro: Option<String>) -> SystemProfile {
         "ubuntu" | "debian" => ("apt", "systemd", "gnu"),
         "void" | "voidlinux" => ("xbps", "runit", "gnu"),
         "solus" | "soluslinux" => ("eopkg", "systemd", "gnu"),
+        "freebsd" => ("pkg", "freebsd-rc", "bsd"),
+        "openbsd" => ("pkg_add", "openbsd-rc", "bsd"),
+        "netbsd" => ("pkgin", "netbsd-rc", "bsd"),
         "gentoo" => ("portage", "unknown", "gnu"), // actually gentoo is a good example of something u cant simply put defaults on haha
         _ => ("unknown", "unknown", "gnu"),
     };
