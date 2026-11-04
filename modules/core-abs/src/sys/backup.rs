@@ -7,9 +7,9 @@ pub struct BackupManager {
 
 impl BackupManager {
     pub fn new() -> Self {
-        // ~/.config/paw/backup
+        // ~/.config/snt/backup
         let mut path = dirs::config_dir().unwrap_or_else(|| PathBuf::from("~/.config"));
-        path.push("paw");
+        path.push("snt");
         path.push("backup");
         Self { backup_dir: path }
     }

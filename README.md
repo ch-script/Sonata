@@ -1,8 +1,17 @@
-# paw-client
+# Sonata
 
-A fast TUI/CLI command abstractor across Unix systems. Making syntax switching trivial for distrohoppers ;)
+Sonata is a modular, extensible system management ecosystem written in Rust, designed, so far, to bring orchestration, package management, declarative configuration, and system automation into a unified environment.
 
-Basically it's a little Rust CLI that helps you stop googling "how do I install a package on arch again" every time you distro-hop lol. Built for Linux and BSD, so if you're on Windows... well yk
+Built around flexibility and modularity, SNT aims to bridge the gap between different Linux distributions, package managers, and system architectures, providing a consistent and powerful interface for managing your entire system.
+
+From automated scripting and development environments to declarative system management, Sonata strives to make complex operations simple, reproducible, and accessible.
+
+Or... in other words,
+basically it's a little Rust CLI that helps you stop googling "how do I install a package on arch again" every time you distro-hop. Or to make learning repetitive commands unnecesary. 
+
+Built for Linux and BSD, so if you're on Windows... well yk
+
+_Oh, btw... I abbreviate the package to "snt". "Sonata" is kinda large._
 
 ## Version History
 
@@ -10,6 +19,9 @@ Basically it's a little Rust CLI that helps you stop googling "how do I install 
 - [0.3](./docs/version/0.3.md)
 
 ## Ideas and vision
+
+Sonata's final goal is to be backbone to a whole new Linux Distro. 
+So here are some notes from the creator on the project's perspective.
 
 [Read](./docs/visions/Vision.md)
 
@@ -45,13 +57,13 @@ Or use ur distro's package manager, most have it.
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/ch-script/ch-client.git
+git clone https://github.com/ch-script/Sonata.git
 ```
 
 ### 2. Get into the folder
 
 ```bash
-cd ch-client
+cd Sonata
 ```
 
 ### 3. Build it
@@ -64,24 +76,16 @@ This'll take a sec depending on your machine, cargo's compiling everything in re
 
 ### 4. Move the binary somewhere useful
 
-Once the build's done, the binary will be chilling at `target/release/ch`. Send it to your local bin so it's actually usable from anywhere:
+Once the build's done, the binary will be at `target/release/snt`. Send it to your local bin so it's actually usable from anywhere:
 
 ```bash
 mkdir -p ~/.local/bin
-cp target/release/ch ~/.local/bin/
+cp target/release/snt ~/.local/bin/
 ```
 
 ### 5. Add it to your shell path
 
-If you're rocking fish (the correct choice), you gotta tell it where to find the binary. Run this:
-
-```fish
-set -U fish_user_paths ~/.local/bin $fish_user_paths
-```
-
-That `-U` makes it universal so it persists across sessions, you won't have to redo this every time you open a new terminal.
-
-If you're using a different shell (bash/zsh), just add this to your `.bashrc` or `.zshrc` instead:
+If you're using a bash/zsh, just add this to your `.bashrc` or `.zshrc`:
 
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
@@ -93,19 +97,23 @@ export PATH="$HOME/.local/bin:$PATH"
 source ~/.config/fish/config.fish
 ```
 
+```bash
+source ~/.bashrc
+```
+
 or just close and reopen your terminal, works too lol
 
 ## Verify it works
 
 ```bash
-ch
+snt
 ```
 
 If it prints something back instead of "command not found", you're good
 
 ## Do you want to personalize it?
 
-`paw` runs off declarative TOML files, so once it's installed you can personalize the commands and submenus to your choice. Check out [CONFIG.md](./CONFIG.md) for the full syntax rundown, covers everything from basic commands to nested menus to locking down dangerous stuff behind a confirmation prompt.
+`snt` runs off declarative TOML files, so once it's installed you can personalize the commands and submenus to your choice. Check out [CONFIG.md](./CONFIG.md) for the full syntax rundown, covers everything from basic commands to nested menus to locking down dangerous stuff behind a confirmation prompt.
 
 ## That's it
 

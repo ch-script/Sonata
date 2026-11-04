@@ -15,7 +15,7 @@ impl Config {
     pub fn load() -> Result<Self, String> {
         let path = crate::config::templates::get_config_path();
         let contents = std::fs::read_to_string(&path)
-            .map_err(|e| format!("Failed to read config (did you run paw --create?): {}", e))?;
+            .map_err(|e| format!("Failed to read config (did you run snt --create?): {}", e))?;
 
         let mut config: Config =
             toml::from_str(&contents).map_err(|e| format!("Failed to parse config.toml: {}", e))?;
@@ -43,10 +43,10 @@ impl Config {
                     }
                 } else {
                     println!(
-                        "[paw] Warning: customs.toml is incorrectly formatted. Skipping customs..."
+                        "[snt] Warning: customs.toml is incorrectly formatted. Skipping customs..."
                     );
                     println!(
-                        "[paw] We recommend you to read the documentation for this part on the REPO."
+                        "[snt] We recommend you to read the documentation for this part on the REPO."
                     );
                 }
             }

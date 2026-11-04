@@ -2,11 +2,11 @@
 # -----------------------------------------------------------------------------
 [pkg] # WE ARE DECLARATIVE NOW!!!!!!
 
-setup_declaration = { cmd = "bash ~/.config/paw/scripts/os/nixos/setup.sh", confirm = "yesorno", msg = "This will modify your configuration.nix to import packages.nix. Proceed?" }
+setup_declaration = { cmd = "bash ~/.config/snt/scripts/os/nixos/setup.sh", confirm = "yesorno", msg = "This will modify your configuration.nix to import packages.nix. Proceed?" }
 
-declare = "bash ~/.config/paw/scripts/os/nixos/install.sh {1}"
+declare = "bash ~/.config/snt/scripts/os/nixos/install.sh {1}"
 
-undeclare = "bash ~/.config/paw/scripts/os/nixos/remove.sh {1}"
+undeclare = "bash ~/.config/snt/scripts/os/nixos/remove.sh {1}"
 
 update = "sudo nixos-rebuild switch --upgrade"
 

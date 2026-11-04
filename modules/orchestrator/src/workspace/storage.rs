@@ -4,7 +4,7 @@ use super::model::InitWorkspace;
 
 pub fn get_init_dir() -> PathBuf {
     let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
-    PathBuf::from(home).join(".config/paw/init")
+    PathBuf::from(home).join(".config/snt/init")
 }
 
 pub fn get_workspace_path(name: &str) -> PathBuf {
@@ -39,7 +39,7 @@ pub fn delete_workspace(name: &str) -> Result<(), String> {
     if script_path.exists() {
         let _ = fs::remove_file(script_path);
     }
-    println!("[paw] Init workspace '{}' deleted successfully.", name);
+    println!("[snt] Init workspace '{}' deleted successfully.", name);
     Ok(())
 }
 

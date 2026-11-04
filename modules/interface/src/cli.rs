@@ -48,7 +48,7 @@ pub fn run() -> Result<(), String> {
                 if let Some(toml::Value::Table(v)) = action_vars.get(&possible_var_name) {
                     if let Some(val) = v.get("val").and_then(|val| val.as_str()) {
                         final_args[0] = val.to_string(); // mutable, not yet fully optimized as it should be
-                        println!("[paw] Using variable '{}': {}", possible_var_name, val);
+                        println!("[snt] Using variable '{}': {}", possible_var_name, val);
                     }
                 }
             }
@@ -59,7 +59,7 @@ pub fn run() -> Result<(), String> {
                             if let Some(val) = v.get("val").and_then(|s| s.as_str()) {
                                 final_args.push(val.to_string());
                                 println!(
-                                    "[paw] Auto-injecting assigned variable '{}': {}",
+                                    "[snt] Auto-injecting assigned variable '{}': {}",
                                     var_name, val
                                 );
                                 break;
@@ -95,18 +95,18 @@ fn process_flags(args: &[String]) -> Result<bool, String> {
             crate::ui::theme::print_logo(); // ik ik ill use "use" later i js want tuf logo
 
             let profile = core_abs::sys::detector::build_system_profile(forced_distro.clone());
-            println!("[paw] Profile detected: {:?}", profile);
+            println!("[snt] Profile detected: {:?}", profile);
             init_config(&profile)?;
-            println!("[paw] Conf created! :D all good!");
+            println!("[snt] Conf created! :D all good!");
             return Ok(true);
         } else if arg == "--update" {
             let profile = core_abs::sys::detector::build_system_profile(forced_distro.clone());
             update_config(&profile)?;
-            println!("[paw] Upgraded :D");
+            println!("[snt] Upgraded :D");
             return Ok(true);
         } else if arg == "--clean" {
             clean_config()?;
-            println!("[paw] Cleaned! :c");
+            println!("[snt] Cleaned! :c");
             return Ok(true);
         } else if arg == "--backup" {
             if i + 2 < args.len() {
@@ -115,7 +115,7 @@ fn process_flags(args: &[String]) -> Result<bool, String> {
                 backup(category, file_path)?;
                 return Ok(true);
             } else {
-                return Err("Usage: paw --backup <category> <file_path>".to_string());
+                return Err("Usage: snt --backup <category> <file_path>".to_string());
             }
         } else if arg == "--clean-backups" {
             let category = if i + 1 < args.len() && !args[i + 1].starts_with("--") {
@@ -163,21 +163,21 @@ fn process_flags(args: &[String]) -> Result<bool, String> {
 
                 config.save()?;
                 println!(
-                    "[paw] Variable '{}' saved successfully for {}:{}!",
+                    "[snt] Variable '{}' saved successfully for {}:{}!",
                     var_name, target_mod, target_act
                 );
                 if assigned {
-                    println!("[paw] It is assigned as default.");
+                    println!("[snt] It is assigned as default.");
                 }
                 return Ok(true);
             } else {
                 return Err(
-                    "Usage: paw --add-var <name> <value> --target <module> <action> [--assign]"
+                    "Usage: snt --add-var <name> <value> --target <module> <action> [--assign]"
                         .to_string(),
                 );
             }
         } else if arg == "--delete-var" {
-            // paw --delete-var <name> --target <module> <action>
+            // snt --delete-var <name> --target <module> <action>
             if i + 4 < args.len() && args[i + 2] == "--target" {
                 let var_name = &args[i + 1];
                 let target_mod = &args[i + 3];
@@ -192,7 +192,7 @@ fn process_flags(args: &[String]) -> Result<bool, String> {
                             if act_table.remove(var_name).is_some() {
                                 config.save()?;
                                 println!(
-                                    "[paw] Variable '{}' deleted successfully from {}:{}!",
+                                    "[snt] Variable '{}' deleted successfully from {}:{}!",
                                     var_name, target_mod, target_act
                                 );
                                 return Ok(true);
@@ -205,7 +205,7 @@ fn process_flags(args: &[String]) -> Result<bool, String> {
                     var_name, target_mod, target_act
                 ));
             } else {
-                return Err("Usage: paw --delete-var <name> --target <module> <action>".to_string());
+                return Err("Usage: snt --delete-var <name> --target <module> <action>".to_string());
             }
         } else if arg == "--profile" {
             let mut verbose = false;
@@ -239,13 +239,13 @@ fn process_flags(args: &[String]) -> Result<bool, String> {
                         };
 
                         if verbose {
-                            println!("[paw] {}: {}", field.to_uppercase(), val);
+                            println!("[snt] {}: {}", field.to_uppercase(), val);
                         } else {
                             println!("{}", val);
                         }
                     } else {
                         if verbose {
-                            println!("Paw System Profile");
+                            println!("Sonata System Profile");
                             println!("{:#?}", prof);
                         } else {
                             println!(
@@ -257,7 +257,7 @@ fn process_flags(args: &[String]) -> Result<bool, String> {
                     }
                 }
                 Err(e) => println!(
-                    "[paw] Could not load profile (run paw --create first?): {}",
+                    "[snt] Could not load profile (run snt --create first?): {}",
                     e
                 ),
             }
@@ -268,7 +268,7 @@ fn process_flags(args: &[String]) -> Result<bool, String> {
                 init_customs()?;
                 return Ok(true);
             } else {
-                return Err("Usage: paw --allow customs".to_string());
+                return Err("Usage: snt --allow customs".to_string());
             }
             //return Ok(true);
         } else if arg == "init" {
@@ -306,10 +306,10 @@ fn process_flags(args: &[String]) -> Result<bool, String> {
                     return Ok(true);
                 }
                 else {
-                    return Err("Usage: paw init <name> [--create | --add \"cmd\" | --activate | --passive | --run | --deactivate | --delete]".to_string());
+                    return Err("Usage: snt init <name> [--create | --add \"cmd\" | --activate | --passive | --run | --deactivate | --delete]".to_string());
                 }
             } else {
-                return Err("Usage: paw init <name> <action>".to_string());
+                return Err("Usage: snt init <name> <action>".to_string());
             }
         }
 
@@ -332,7 +332,7 @@ fn resolve_target(
         }
     } else {
         Err(
-            "Usage: paw <module> <action> [args...]\n   or: paw (for interactive super easy mode :D)"
+            "Usage: snt <module> <action> [args...]\n   or: snt (for interactive super easy mode :D)"
                 .to_string(),
         )
     }

@@ -2,10 +2,10 @@
 name = "interface"
 version = "0.2.0"
 edition = "2024"
-default-run = "paw"
+default-run = "snt"
 
 [[bin]]
-name = "paw"
+name = "snt"
 path = "src/main.rs"
 
 [dependencies]

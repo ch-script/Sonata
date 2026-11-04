@@ -9,12 +9,12 @@ static SCRIPTS_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/scripts");
 
 pub fn get_config_path() -> PathBuf {
     let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
-    PathBuf::from(home).join(".config/paw/config.toml")
+    PathBuf::from(home).join(".config/snt/config.toml")
 }
 
 fn extract_scripts_helper(category: &str, service_name: &str) -> Result<(), String> {
     let mut target_dir = dirs::config_dir().unwrap_or_else(|| PathBuf::from("~/.config"));
-    target_dir.push("paw");
+    target_dir.push("snt");
     target_dir.push("scripts");
     target_dir.push(category);
     target_dir.push(service_name);
@@ -44,7 +44,7 @@ fn extract_scripts_helper(category: &str, service_name: &str) -> Result<(), Stri
             }
         }
         println!(
-            "[paw] Scripts for '{}' extracted and made executable.", // Debug for each
+            "[snt] Scripts for '{}' extracted and made executable.", // Debug for each
             full_path
         );
     }
@@ -86,10 +86,10 @@ pub fn clean_config() -> Result<(), String> {
     let path = get_config_path();
     if path.exists() {
         fs::remove_file(&path).map_err(|e| format!("Failed to remove config file: {}", e))?;
-        println!("[paw] Configuration file was removed successfully");
+        println!("[snt] Configuration file was removed successfully");
     } else {
         println!(
-            "[paw] There's no configuration file found to be cleaned, like there isn't at all"
+            "[snt] There's no configuration file found to be cleaned, like there isn't at all"
         );
     }
     Ok(())
@@ -106,7 +106,7 @@ pub fn update_config(profile: &SystemProfile) -> Result<PathBuf, String> {
 pub fn backup(category: &str, file_path: &str) -> Result<(), String> {
     let manager = BackupManager::new();
     let dest = manager.backup(category, file_path)?;
-    println!("[paw] Backup successful.");
+    println!("[snt] Backup successful.");
     println!("Saved at: {}", dest.display());
     Ok(())
 }
@@ -119,7 +119,7 @@ pub fn clean_backups(category: Option<&str>) -> Result<(), String> {
 }
 pub fn get_profile_path() -> PathBuf {
     let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
-    PathBuf::from(home).join(".config/paw/profile.toml")
+    PathBuf::from(home).join(".config/snt/profile.toml")
 }
 
 pub fn save_profile(profile: &SystemProfile) -> Result<(), String> {
@@ -150,7 +150,7 @@ pub fn load_profile() -> Result<SystemProfile, String> {
 
 pub fn get_customs_path() -> PathBuf {
     let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
-    PathBuf::from(home).join(".config/paw/customs.toml")
+    PathBuf::from(home).join(".config/snt/customs.toml")
 }
 
 pub fn init_customs() -> Result<(), String> {
@@ -158,7 +158,7 @@ pub fn init_customs() -> Result<(), String> {
 
     if path.exists() {
         return Err(
-            "customs.toml already exists! You can edit it directly at ~/.config/paw/customs.toml"
+            "customs.toml already exists! You can edit it directly at ~/.config/snt/customs.toml"
                 .to_string(),
         );
     }
@@ -168,10 +168,9 @@ pub fn init_customs() -> Result<(), String> {
     }
 
     // Boilerplate for the user to understand how it works
-    let boilerplate = r#"# Paw Customs Configuration
+    let boilerplate = r#"# Sonata Customs Configuration
 # Here you can define your own modules or extend existing ones!
 # These commands will seamlessly integrate into the TUI and CLI.
-# Detailed info: https://github.com/ch-script/ch-client/blob/main/CONFIG.md
 
 [my_scripts]
 hello = "echo 'Hello!'"
@@ -184,8 +183,8 @@ hello = "echo 'Hello!'"
     std::fs::write(&path, boilerplate)
         .map_err(|e| format!("Failed to create customs file: {}", e))?;
 
-    println!("[paw] customs.toml initialized successfully!");
-    println!("[paw] You can now edit it at: {}", path.display());
+    println!("[snt] customs.toml initialized successfully!");
+    println!("[snt] You can now edit it at: {}", path.display());
     Ok(())
 }
 

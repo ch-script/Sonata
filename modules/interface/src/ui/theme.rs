@@ -7,8 +7,8 @@ pub fn setup_ch_theme() {
     theme.prompt = StyleSheet::new()
         .with_fg(Color::LightCyan)
         .with_attr(Attributes::BOLD);
-    theme.prompt_prefix = Styled::new("paw prompt").with_fg(Color::LightMagenta);
-    theme.answered_prompt_prefix = Styled::new("paw success").with_fg(Color::LightGreen);
+    theme.prompt_prefix = Styled::new("Sonata Prompt").with_fg(Color::LightMagenta);
+    theme.answered_prompt_prefix = Styled::new("Sonata Success").with_fg(Color::LightGreen);
     theme.help_message = StyleSheet::new().with_fg(Color::DarkGrey);
 
     // options selection

@@ -9,7 +9,7 @@ package_exists() {
 }
 
 if [ "$#" -eq 0 ]; then
-    echo "[paw] Error: Please provide at least one package name."
+    echo "[snt] Error: Please provide at least one package name."
     exit 1
 fi
 
@@ -17,13 +17,13 @@ NEW_PACKAGES=()
 
 for PACKAGE in "$@"; do
     if grep -qE "^\s*${PACKAGE}\s*\$" "$PACKAGES_FILE"; then
-        echo "[paw] Package '$PACKAGE' is already declared. Skipping."
+        echo "[snt] Package '$PACKAGE' is already declared. Skipping."
         continue
     fi
 
-    echo "[paw] Checking if '$PACKAGE' exists in nixpkgs..."
+    echo "[snt] Checking if '$PACKAGE' exists in nixpkgs..."
     if ! package_exists "$PACKAGE"; then
-        echo "[paw] Warning: '$PACKAGE' not found in nixpkgs. Skipping."
+        echo "[snt] Warning: '$PACKAGE' not found in nixpkgs. Skipping."
         continue
     fi
 
@@ -31,17 +31,17 @@ for PACKAGE in "$@"; do
 done
 
 if [ "${#NEW_PACKAGES[@]}" -eq 0 ]; then
-    echo "[paw] Nothing to do."
+    echo "[snt] Nothing to do."
     exit 0
 fi
 
-echo "[paw] Creating backup of $PACKAGES_FILE"
-paw --backup pkgs "$PACKAGES_FILE"
+echo "[snt] Creating backup of $PACKAGES_FILE"
+snt --backup pkgs "$PACKAGES_FILE"
 
 for PACKAGE in "${NEW_PACKAGES[@]}"; do
-    echo "[paw] Installing $PACKAGE"
+    echo "[snt] Installing $PACKAGE"
     sudo sed -i "/# ch_packages_end/i\\    $PACKAGE" "$PACKAGES_FILE"
 done
 
-echo "[paw] Rebuilding the system"
+echo "[snt] Rebuilding the system"
 sudo nixos-rebuild switch

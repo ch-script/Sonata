@@ -45,7 +45,7 @@ pub fn manage_variables_tui(module: &str, action: &str) -> Result<(), String> {
                 let mut v_name = String::new();
                 std::io::stdin().read_line(&mut v_name).unwrap();
 
-                print!("Variable value (e.g. /etc/nixos#paw): ");
+                print!("Variable value (e.g. /etc/nixos#snt): ");
                 stdout.flush().unwrap();
                 let mut v_val = String::new();
                 std::io::stdin().read_line(&mut v_val).unwrap();
@@ -355,7 +355,7 @@ fn prompt_required_tokens(cmd_raw: &str) -> Option<Vec<String>> {
             };
 
             if input.trim().is_empty() {
-                println!("[paw] The argument cannot be empty.");
+                println!("[snt] The argument cannot be empty.");
                 return None;
             }
 
