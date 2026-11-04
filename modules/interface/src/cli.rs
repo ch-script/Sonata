@@ -1,3 +1,4 @@
+use orchestrator::workspace::{create_workspace, delete_workspace, add_command, activate, deactivate, run_wp};
 use core_abs::config::model::Config;
 use core_abs::config::templates::{
     backup, clean_backups, clean_config, init_config, init_customs, load_profile, update_config,
@@ -5,6 +6,7 @@ use core_abs::config::templates::{
 use core_abs::sys::executor::execute;
 
 use crate::ui::interactive::run_interactive_help;
+
 use std::env;
 
 pub fn run() -> Result<(), String> {
@@ -269,6 +271,46 @@ fn process_flags(args: &[String]) -> Result<bool, String> {
                 return Err("Usage: paw --allow customs".to_string());
             }
             //return Ok(true);
+        } else if arg == "init" {
+            if i + 2 < args.len() {
+                let ws_name = &args[i + 1];
+                let action = &args[i + 2];
+
+                if action == "--create" {
+                    create_workspace(ws_name)?;
+                    return Ok(true);
+                } else if action == "--add" && i + 3 < args.len() {
+                    let cmd_to_add = &args[i + 3];
+                    add_command(ws_name, cmd_to_add)?;
+                    return Ok(true);
+                } else if action == "--activate" {
+                    let profile = core_abs::sys::detector::build_system_profile(forced_distro.clone());
+                    activate(ws_name, &profile)?;
+                    return Ok(true);
+                } else if action == "--deactivate" {
+                    let profile = core_abs::sys::detector::build_system_profile(forced_distro.clone());
+                    deactivate(ws_name, &profile)?;
+                    return Ok(true);
+                } else if action == "--delete" {
+                    let profile = core_abs::sys::detector::build_system_profile(forced_distro.clone());
+                    let _ = deactivate(ws_name, &profile);
+                    delete_workspace(ws_name)?;
+                    return Ok(true);
+                } else if action == "--passive" {
+                    let mut profile = core_abs::sys::detector::build_system_profile(forced_distro.clone());
+                    profile.init_system = "passive".to_string();
+                    activate(ws_name, &profile)?;
+                    return Ok(true);
+                } else if action == "--run" || action == "run" {
+                    run_wp(ws_name)?;
+                    return Ok(true);
+                }
+                else {
+                    return Err("Usage: paw init <name> [--create | --add \"cmd\" | --activate | --passive | --run | --deactivate | --delete]".to_string());
+                }
+            } else {
+                return Err("Usage: paw init <name> <action>".to_string());
+            }
         }
 
         i += 1;

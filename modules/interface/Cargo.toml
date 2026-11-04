@@ -12,4 +12,5 @@ path = "src/main.rs"
 crossterm = "0.29.0"
 inquire = "0.9.4"
 core-abs = { path = "../core-abs" }
+orchestrator = { path = "../orchestrator" }
 toml = "1.1.4"
