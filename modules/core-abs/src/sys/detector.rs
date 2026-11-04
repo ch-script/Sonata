@@ -180,9 +180,9 @@ pub fn build_system_profile(forced_distro: Option<String>) -> SystemProfile {
         "ubuntu" | "debian" => ("apt", "systemd", "gnu"),
         "void" | "voidlinux" => ("xbps", "runit", "gnu"),
         "solus" | "soluslinux" => ("eopkg", "systemd", "gnu"),
-        "freebsd" => ("pkg", "freebsd-rc", "bsd"),
-        "openbsd" => ("pkg_add", "openbsd-rc", "bsd"),
-        "netbsd" => ("pkgin", "netbsd-rc", "bsd"),
+        "freebsd" => ("pkg", "freebsd-rc", "gnu"),
+        "openbsd" => ("pkg_add", "openbsd-rc", "gnu"),
+        "netbsd" => ("pkgin", "netbsd-rc", "gnu"),
         "gentoo" => ("portage", "unknown", "gnu"), // actually gentoo is a good example of something u cant simply put defaults on haha
         _ => ("unknown", "unknown", "gnu"),
     };
