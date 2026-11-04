@@ -34,6 +34,7 @@ fn detect_init_system() -> String {
         "unknown".to_string()
     }
 }
+
 // available support for now
 fn detect_pkg_manager() -> String {
     if command_exists("pacman") { "pacman".to_string() } // Arch larp
@@ -117,11 +118,7 @@ fn detect_wm() -> Option<String> { // only WM
     None
 }
 
-fn detect_gpu() -> Option<String> {else if command_exists("rcctl") {
-        "openbsd-rc".to_string()
-    } else if command_exists("service") && env::consts::OS.contains("bsd") {
-        "freebsd-rc".to_string()
-    }
+fn detect_gpu() -> Option<String> {
     if Path::new("/sys/module/nvidia").exists() { return Some("nvidia".to_string()); }
     if Path::new("/sys/module/amdgpu").exists() { return Some("amd".to_string()); }
     if Path::new("/sys/module/i915").exists() || Path::new("/sys/module/xe").exists() {
