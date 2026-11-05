@@ -3,8 +3,7 @@ use core_abs::config::model::Config;
 use core_abs::config::templates::{
     backup, clean_backups, clean_config, init_config, init_customs, load_profile, update_config,
 };
-use core_abs::sys::executor::execute;
-
+use core_abs::sys::executor::{execute, ExecutionTarget};
 use crate::ui::interactive::run_interactive_help;
 
 use std::env;
@@ -54,8 +53,49 @@ pub fn run() -> Result<(), String> {
         }
     }
 
-    execute(&actual_cmd_str, &final_args)
+    let mut exec_target = ExecutionTarget::Local; // target resolution
+
+    if let Some(toml::Value::Table(mod_table)) = config.modules.get(&module) {
+
+        fn find_table_props<'a>(val: &'a toml::Value, action: &str) -> Option<&'a toml::map::Map<String, toml::Value>> {
+            match val {
+                toml::Value::Table(t) => {
+                    if let Some(found) = t.get(action) {
+                        if let toml::Value::Table(tbl) = found {
+                            return Some(tbl);
+                        }
+                    }
+                    for (_, v) in t {
+                        if let Some(res) = find_table_props(v, action) {
+                            return Some(res);
+                        }
+                    }
+                    None
+                }
+                _ => None,
+            }
+        }
+
+        if let Some(tbl) = find_table_props(&toml::Value::Table(mod_table.clone()), &action) {
+            if let Some(target_val) = tbl.get("target").and_then(|v| v.as_str()) {
+                if target_val == "remote" {
+                    let ip = tbl.get("ip")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("100.102.144.38") // default
+                        .to_string();
+
+                    let port = tbl.get("port")
+                        .and_then(|v| v.as_integer())
+                        .unwrap_or(9999) as u16;
+
+                    exec_target = ExecutionTarget::Remote { ip, port };
+                }
+            }
+        }
+    }
+    execute(&actual_cmd_str, &final_args, exec_target)
 }
+
 
 fn process_flags(args: &[String]) -> Result<bool, String> {
     let mut forced_distro = None;
