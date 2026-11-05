@@ -1,7 +1,7 @@
 use orchestrator::workspace::{create_workspace, delete_workspace, add_command, activate, deactivate, run_wp};
 use core_abs::config::model::Config;
 use core_abs::config::templates::{
-    backup, clean_backups, clean_config, init_config, init_customs, load_profile, update_config,
+    backup, clean_backups, clean_config, init_config, init_customs, load_profile, update_config, add_includes_to_file
 };
 use core_abs::sys::executor::{execute, ExecutionTarget};
 use crate::ui::interactive::run_interactive_help;
@@ -147,6 +147,43 @@ fn process_flags(args: &[String]) -> Result<bool, String> {
                 None
             };
             clean_backups(category)?;
+            return Ok(true);
+        } else if arg == "--include" {
+            let mut paths = Vec::new();
+            let mut origin = core_abs::config::templates::get_config_path();
+
+            let mut j = i + 1;
+            while j < args.len() {
+                if args[j] == "--in" {
+                    if j + 1 < args.len() {
+                        let origin_str = &args[j + 1];
+                        if origin_str.starts_with("~/") {
+                            let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
+                            origin = std::path::PathBuf::from(home).join(&origin_str[2..]);
+                        } else if origin_str.starts_with('/') {
+                            origin = std::path::PathBuf::from(origin_str);
+                        } else {
+                            let config_dir = core_abs::config::templates::get_config_path().parent().unwrap().to_path_buf();
+                            origin = config_dir.join(origin_str);
+                        }
+                        break; // Stop parsing include paths after --in is found
+                    } else {
+                        return Err("Usage: snt --include <path1> <path2> --in <origin>".to_string());
+                    }
+                } else if !args[j].starts_with("--") {
+                    paths.push(args[j].clone());
+                    j += 1;
+                } else {
+                    break;
+                }
+            }
+
+            if paths.is_empty() {
+                return Err("Usage: snt --include <path1> <path2> [--in <origin>]".to_string());
+            }
+
+            add_includes_to_file(&origin, paths)?;
+            println!("[snt] Includes successfully injected into {}", origin.display());
             return Ok(true);
         } else if arg == "--add-var" {
             if i + 5 < args.len() && args[i + 3] == "--target" {

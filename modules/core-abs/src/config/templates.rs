@@ -3,7 +3,7 @@ use crate::sys::backup::BackupManager;
 use crate::sys::profile::SystemProfile;
 use include_dir::{Dir, include_dir};
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 static SCRIPTS_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/scripts");
 
@@ -157,10 +157,7 @@ pub fn init_customs() -> Result<(), String> {
     let path = get_customs_path();
 
     if path.exists() {
-        return Err(
-            "customs.toml already exists! You can edit it directly at ~/.config/snt/customs.toml"
-                .to_string(),
-        );
+        return Err("customs.toml already exists! You can edit it directly at ~/.config/snt/customs.toml".to_string());
     }
 
     if let Some(parent) = path.parent() {
@@ -183,8 +180,13 @@ hello = "echo 'Hello!'"
     std::fs::write(&path, boilerplate)
         .map_err(|e| format!("Failed to create customs file: {}", e))?;
 
-    println!("[snt] customs.toml initialized successfully!");
-    println!("[snt] You can now edit it at: {}", path.display());
+    // Inject the include directly into config.toml
+    let config_path = get_config_path();
+    if config_path.exists() {
+        let _ = add_includes_to_file(&config_path, vec!["./customs.toml".to_string()]);
+    }
+
+    println!("[snt] customs.toml initialized successfully and linked in config.toml!");
     Ok(())
 }
 
@@ -209,4 +211,46 @@ pub fn init_config(profile: &SystemProfile) -> Result<PathBuf, String> {
     save_profile(profile)?; // necessary for command "--profile --verbose", it also works as cache for other things...
 
     Ok(config_path)
+}
+
+pub fn add_includes_to_file(file_path: &Path, new_includes: Vec<String>) -> Result<(), String> {
+    if !file_path.exists() {
+        return Err(format!("File {} does not exist.", file_path.display()));
+    }
+
+    let contents = std::fs::read_to_string(file_path).map_err(|e| e.to_string())?;
+    let mut table: toml::map::Map<String, toml::Value> = toml::from_str(&contents).map_err(|e| e.to_string())?;
+
+    let mut current_includes = Vec::new();
+    if let Some(inc) = table.remove("include") {
+        match inc {
+            toml::Value::String(s) => current_includes.push(s),
+            toml::Value::Array(arr) => {
+                for item in arr {
+                    if let toml::Value::String(s) = item {
+                        current_includes.push(s);
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+
+    for ni in new_includes {
+        if !current_includes.contains(&ni) {
+            current_includes.push(ni);
+        }
+    }
+
+    if current_includes.len() == 1 {
+        table.insert("include".to_string(), toml::Value::String(current_includes[0].clone()));
+    } else if current_includes.len() > 1 {
+        let arr = current_includes.into_iter().map(toml::Value::String).collect();
+        table.insert("include".to_string(), toml::Value::Array(arr));
+    }
+
+    let new_contents = toml::to_string(&table).map_err(|e| e.to_string())?;
+    std::fs::write(file_path, new_contents).map_err(|e| e.to_string())?;
+
+    Ok(())
 }

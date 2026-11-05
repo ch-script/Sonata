@@ -1,5 +1,6 @@
-use crate::config::model::Config;
+//use crate::config::model::Config;
 use crate::sys::profile::SystemProfile;
+use super::templates::get_config_path;
 use include_dir::{include_dir, Dir};
 
 static TEMPLATES_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/templates");
@@ -52,16 +53,34 @@ pub fn assemble_config(profile: &SystemProfile) -> Result<String, String> {
                     merge_tables(&mut merged_modules, parsed_modules);
                 }
                 Ok(_) => {
-                    eprintln!("[ch] Warning: Fragment {}/{} is not a valid TOML table (missing [category] header?)", category, name);
+                    eprintln!("[snt] Warning: Fragment {}/{} is not a valid TOML table", category, name);
                 }
                 Err(e) => {
-                    eprintln!("[ch] Error parsing {}/{}.toml: {}", category, name, e);
+                    eprintln!("[snt] Error parsing {}/{}.toml: {}", category, name, e);
                 }
             }
         }
     }
 
-    let final_config = Config {
+    // Rescue existing include from current config.toml to avoid losing it on updates
+    let config_path = get_config_path();
+    let mut existing_includes = None;
+    if config_path.exists() {
+        if let Ok(contents) = std::fs::read_to_string(&config_path) {
+            if let Ok(toml::Value::Table(tbl)) = toml::from_str(&contents) {
+                if let Some(inc) = tbl.get("include") {
+                    existing_includes = Some(inc.clone());
+                }
+            }
+        }
+    }
+
+    // inject the rescued include into the map before saving
+    if let Some(inc) = existing_includes {
+        merged_modules.insert("include".to_string(), inc);
+    }
+
+    let final_config = crate::config::model::Config {
         _active_distro: profile.os.clone(),
         modules: merged_modules.into_iter().collect(),
     };
