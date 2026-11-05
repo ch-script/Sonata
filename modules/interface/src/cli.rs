@@ -12,57 +12,40 @@ use std::env;
 pub fn run() -> Result<(), String> {
     let args: Vec<String> = env::args().collect();
 
-    // Process flags
     if args.len() > 1 && process_flags(&args)? {
         return Ok(());
     }
 
     let config = Config::load()?;
 
-    let (module, action, extra_args) = resolve_target(&args, &config)?;
+    let (module, action, actual_cmd_str, extra_args) = resolve_target(&args, &config)?;
 
-    let actions = config
-        .modules
-        .get(&module)
-        .ok_or_else(|| format!("Module '{}' not found in config", module))?;
+    let mut final_args = extra_args.clone();
 
-    let cmd_raw = actions
-        .get(&action)
-        .ok_or_else(|| format!("Action '{}' not found in module '{}'", action, module))?;
-
-    let actual_cmd_str = match cmd_raw {
-        toml::Value::String(s) => s.as_str(),
-        toml::Value::Table(t) => t.get("cmd").and_then(|v| v.as_str()).unwrap_or_else(|| {
-            panic!("Error: The advanced command does not have a cmd valid camp")
-        }),
-        _ => panic!("Error: Invalid command format for the TOML"),
-    };
-
-    let mut final_args = extra_args.clone(); // variables
-
-    if let Some(toml::Value::Table(vars_table)) = actions.get("vars") {
-        if let Some(toml::Value::Table(action_vars)) = vars_table.get(&action) {
-            if final_args.len() == 1 {
-                let possible_var_name = final_args[0].clone();
-
-                if let Some(toml::Value::Table(v)) = action_vars.get(&possible_var_name) {
-                    if let Some(val) = v.get("val").and_then(|val| val.as_str()) {
-                        final_args[0] = val.to_string(); // mutable, not yet fully optimized as it should be
-                        println!("[snt] Using variable '{}': {}", possible_var_name, val);
+    if let Some(toml::Value::Table(actions)) = config.modules.get(&module) {
+        if let Some(toml::Value::Table(vars_table)) = actions.get("vars") {
+            if let Some(toml::Value::Table(action_vars)) = vars_table.get(&action) {
+                if final_args.len() == 1 {
+                    let possible_var_name = final_args[0].clone();
+                    if let Some(toml::Value::Table(v)) = action_vars.get(&possible_var_name) {
+                        if let Some(val) = v.get("val").and_then(|val| val.as_str()) {
+                            final_args[0] = val.to_string();
+                            println!("[snt] Using variable '{}': {}", possible_var_name, val);
+                        }
                     }
                 }
-            }
-            if final_args.is_empty() {
-                for (var_name, var_data) in action_vars {
-                    if let toml::Value::Table(v) = var_data {
-                        if v.get("assigned").and_then(|b| b.as_bool()).unwrap_or(false) {
-                            if let Some(val) = v.get("val").and_then(|s| s.as_str()) {
-                                final_args.push(val.to_string());
-                                println!(
-                                    "[snt] Auto-injecting assigned variable '{}': {}",
-                                    var_name, val
-                                );
-                                break;
+                if final_args.is_empty() {
+                    for (var_name, var_data) in action_vars {
+                        if let toml::Value::Table(v) = var_data {
+                            if v.get("assigned").and_then(|b| b.as_bool()).unwrap_or(false) {
+                                if let Some(val) = v.get("val").and_then(|s| s.as_str()) {
+                                    final_args.push(val.to_string());
+                                    println!(
+                                        "[snt] Auto-injecting assigned variable '{}': {}",
+                                        var_name, val
+                                    );
+                                    break;
+                                }
                             }
                         }
                     }
@@ -70,8 +53,8 @@ pub fn run() -> Result<(), String> {
             }
         }
     }
-    // ----------------------------------
-    execute(actual_cmd_str, &final_args)
+
+    execute(&actual_cmd_str, &final_args)
 }
 
 fn process_flags(args: &[String]) -> Result<bool, String> {
@@ -322,18 +305,78 @@ fn process_flags(args: &[String]) -> Result<bool, String> {
 fn resolve_target(
     args: &[String],
     config: &Config,
-) -> Result<(String, String, Vec<String>), String> {
+) -> Result<(String, String, String, Vec<String>), String> {
     if args.len() >= 3 {
-        Ok((args[1].clone(), args[2].clone(), args[3..].to_vec()))
+        let module_name = &args[1];
+        let mut current_val = config.modules.get(module_name)
+            .ok_or_else(|| format!("Module '{}' not found in config", module_name))?;
+
+        let mut i = 2;
+
+        while i < args.len() {
+            match current_val {
+                toml::Value::Table(t) => {
+                    if t.contains_key("cmd") { break; }
+                    if let Some(next_val) = t.get(&args[i]) {
+                        current_val = next_val;
+                        i += 1;
+                    } else { break; }
+                }
+                toml::Value::String(_) => break,
+                _ => break,
+            }
+        }
+
+        let action_name = args[i - 1].clone();
+
+        let cmd_str = match current_val {
+            toml::Value::String(s) => s.as_str().to_string(),
+            toml::Value::Table(t) => t.get("cmd").and_then(|v| v.as_str()).map(|s| s.to_string()).unwrap_or_else(|| {
+                panic!("Error: The advanced command does not have a 'cmd' key")
+            }),
+            _ => return Err("Error: Invalid command format for the TOML".to_string()),
+        };
+
+        Ok((module_name.clone(), action_name, cmd_str, args[i..].to_vec()))
     } else if args.len() == 1 || (args.len() == 2 && args[1] == "help") {
         match run_interactive_help(config) {
-            Some((m, a, extra_args)) => Ok((m, a, extra_args)),
+            Some((_menu, action_key, extra_args)) => {
+
+                fn find_cmd_str(val: &toml::Value, target_action: &str) -> Option<String> {
+                    match val {
+                        toml::Value::Table(t) => {
+                            if let Some(found) = t.get(target_action) {
+                                match found {
+                                    toml::Value::String(s) => return Some(s.as_str().to_string()),
+                                    toml::Value::Table(tbl) => {
+                                        if let Some(cmd) = tbl.get("cmd").and_then(|v| v.as_str()) {
+                                            return Some(cmd.to_string());
+                                        }
+                                    }
+                                    _ => {}
+                                }
+                            }
+                            for (_, v) in t {
+                                if let Some(res) = find_cmd_str(v, target_action) {
+                                    return Some(res);
+                                }
+                            }
+                            None
+                        }
+                        _ => None,
+                    }
+                }
+                for (root_name, root_val) in &config.modules {
+                    if let Some(cmd_str) = find_cmd_str(root_val, &action_key) {
+                        return Ok((root_name.clone(), action_key, cmd_str, extra_args));
+                    }
+                }
+
+                Err(format!("Action '{}' not found after interactive selection", action_key))
+            }
             None => Err("Canceled operation".to_string()),
         }
     } else {
-        Err(
-            "Usage: snt <module> <action> [args...]\n   or: snt (for interactive super easy mode :D)"
-                .to_string(),
-        )
+        Err("Usage: snt <module> <action> [args...]\n   or: snt (for interactive mode)".to_string())
     }
 }
